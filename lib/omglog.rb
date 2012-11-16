@@ -40,7 +40,11 @@ module Omglog
       rows, cols = `tput lines; tput cols`.scan(/\d+/).map(&:to_i)
       `#{log_cmd} -#{rows}`.tap {|log|
         log_lines = Array.new(rows, '')
-        log_lines.unshift *log.split("\n")
+        begin
+          log_lines.unshift *log.split("\n")
+        rescue
+          log_lines.unshift *log.force_encoding("iso-8859-1").split("\n")
+        end
 
         print CLEAR + log_lines[0...(rows - 1)].map {|l|
           commit = l.scan(LOG_REGEX).flatten.map(&:to_s)
